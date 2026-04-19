@@ -166,13 +166,27 @@ misnotas() {
     fi
 }
 
-# Navegar a la carpeta de proyectos configurada
-api() {
+# ==========================================
+# UTILIDADES DEL SISTEMA Y NAVEGACIÓN
+# ==========================================
+
+# Navegar al espacio de trabajo (Workspace)
+workspace() {
     if [ -d "$LEARNING_PATH" ]; then
         cd "$LEARNING_PATH" || return
     else
         echo -e "\e[31m❌ Error: La ruta de proyectos no existe o no está configurada.\e[0m"
         echo -e "\e[90mUsa 'configurar-entorno' para arreglarlo.\e[0m"
+    fi
+}
+
+# Editar o recargar la configuración de Bash
+bashconfig() {
+    if [ "$1" == "-r" ]; then
+        source ~/.bashrc
+        echo -e "\e[32m✔️  Configuración recargada exitosamente.\e[0m"
+    else
+        nano ~/.bashrc
     fi
 }
 

@@ -58,7 +58,7 @@ auditar-entorno() {
     comandos_core=(
         "c" "ll" "mi-ip" ".." 
         "dev" "gs" "ga" "gc" "gl" 
-        "api" "mkcd" "killport" 
+        "workspace" "mkcd" "killport" 
         "nota" "misnotas" 
         "bashconfig" "br" "mi-config" "configurar-entorno" "mi-logo" "hyler-sync" "auditar-entorno"
     )

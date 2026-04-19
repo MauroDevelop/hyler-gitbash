@@ -8,7 +8,7 @@ comandos() {
         echo -e "\e[32m[ GIT & NODE ]\e[0m"
         echo "  dev / gs / ga / gc / gl"
         echo -e "\e[32m[ PROYECTOS ]\e[0m"
-        echo "  api        -> Entorno de proyectos"
+        echo "  workspace  -> Entorno de proyectos (Workspace)"
         echo "  mkcd [dir] -> Crear y entrar a directorio"
         echo "  killport   -> Liberar puerto (Ej: 3000)"
         echo -e "\e[32m[ UTILIDADES & CONFIGURACIÓN ]\e[0m"
@@ -38,7 +38,7 @@ comandos() {
         echo -e "  \e[36mgl\e[0m         : Muestra el historial de commits en formato gráfico y a color."
         
         echo -e "\n\e[32m[ PROYECTOS ]\e[0m"
-        echo -e "  \e[36mapi\e[0m        : Navega directamente a tu carpeta de proyectos."
+        echo -e "  \e[36mworkspace\e[0m        : Navega directamente a tu carpeta de proyectos."
         echo -e "  \e[36mmkcd [dir]\e[0m : Crea una carpeta y entra en ella al instante. Uso: \e[90mmkcd nueva_api\e[0m"
         echo -e "  \e[36mkillport\e[0m   : Libera un puerto trabado. Uso: \e[90mkillport 3000\e[0m"
         
