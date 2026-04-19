@@ -36,7 +36,7 @@ mi-config() {
 configurar-entorno() {
     clear
     echo -e "\e[36m==================================================\e[0m"
-    echo -e "\e[36m   ASISTENTE DE CONFIGURACIÓN MAURO DEVELOP  \e[0m"
+    echo -e "\e[36m   ASISTENTE DE CONFIGURACIÓN HYLER  \e[0m"
     echo -e "\e[36m==================================================\e[0m"
     echo "¡Bienvenido! Vamos a dejar tu terminal lista para programar."
     echo "Si no querés cambiar un valor, simplemente presiona ENTER."
@@ -138,4 +138,62 @@ mi-logo() {
     
     nano ~/.dotfiles/custom_logo.txt
     source ~/.bashrc
+}
+
+# ==========================================
+# SISTEMA DE NOTAS (BACKLOG)
+# ==========================================
+nota() {
+    if [ -z "$1" ]; then
+        echo -e "\e[31m❌ Error: Debes escribir el texto de la nota.\e[0m"
+    else
+        # 1. Creamos la carpeta padre por si no existe
+        mkdir -p "$(dirname "$NOTES_FILE")"
+        
+        # 2. USAMOS COMILLAS en "$NOTES_FILE" para soportar espacios como 'VS code'
+        echo "- $(date '+%Y-%m-%d %H:%M'): $@" >> "$NOTES_FILE"
+        echo -e "\e[32m✔️  Nota guardada exitosamente en su archivo.\e[0m"
+    fi
+}
+
+misnotas() {
+    if [ -f "$NOTES_FILE" ]; then
+        echo -e "\e[33m========== BACKLOG DE TAREAS ==========\e[0m"
+        cat "$NOTES_FILE"
+        echo -e "\e[33m=======================================\e[0m"
+    else
+        echo -e "\e[33mNo hay notas pendientes.\e[0m"
+    fi
+}
+
+# Navegar a la carpeta de proyectos configurada
+api() {
+    if [ -d "$LEARNING_PATH" ]; then
+        cd "$LEARNING_PATH" || return
+    else
+        echo -e "\e[31m❌ Error: La ruta de proyectos no existe o no está configurada.\e[0m"
+        echo -e "\e[90mUsa 'configurar-entorno' para arreglarlo.\e[0m"
+    fi
+}
+
+# Crear carpeta y entrar en ella
+mkcd() {
+    mkdir -p "$1" && cd "$1" || return
+}
+
+# Matar procesos en puertos específicos (Versión Git Bash / Windows)
+killport() {
+    if [ -z "$1" ]; then
+        echo "Uso: killport [puerto]"
+    else
+        echo "Buscando procesos en el puerto $1..."
+        # Busca el PID del proceso en ese puerto y lo mata
+        pid=$(netstat -ano | grep ":$1" | grep "LISTENING" | awk '{print $5}' | head -n 1)
+        if [ -n "$pid" ]; then
+            taskkill //F //PID "$pid"
+            echo -e "\e[32m✔️  Puerto $1 liberado (PID $pid).\e[0m"
+        else
+            echo -e "\e[31m❌ No se encontró ningún proceso en el puerto $1.\e[0m"
+        fi
+    fi
 }
