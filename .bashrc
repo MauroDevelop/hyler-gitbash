@@ -1,5 +1,5 @@
 # ==============================================================================
-# .bashrc - Mauro Develop (Loader Modular)
+# .bashrc - Hyler GitBash (Loader Modular)
 # ==============================================================================
 
 # Definimos dónde están guardados los módulos
@@ -12,3 +12,4 @@ source "$DOTFILES_DIR/aliases.sh"
 source "$DOTFILES_DIR/utils.sh"
 source "$DOTFILES_DIR/help.sh"
 source "$DOTFILES_DIR/dashboard.sh"
+source "$DOTFILES_DIR/dev.sh"

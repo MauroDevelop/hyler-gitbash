@@ -8,5 +8,4 @@ alias ga='git add .'
 alias gc='git commit -m'
 alias gl='git log --graph --oneline --decorate --all --color'
 alias dev='npm run dev'
-
 alias br='bashconfig -r'
