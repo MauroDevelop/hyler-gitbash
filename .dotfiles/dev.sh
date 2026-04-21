@@ -2,53 +2,101 @@
 # MÓDULO DE DESARROLLO HYLER (DEV ONLY)
 # ==========================================
 
-# 1. Herramienta de Sincronización Automática
-hyler-sync() {
+# 1. Menú de Ayuda para Desarrolladores
+dev-help() {
+    echo -e "\e[35m==========  COMANDOS DE DESARROLLO ==========\e[0m"
+    echo -e " \e[36mdev-sync\e[0m   : Sincroniza tu entorno activo a la carpeta del repositorio."
+    echo -e " \e[36mdev-audit\e[0m  : Ejecuta tests para verificar que ningún comando esté roto."
+    echo -e " \e[36mdev-repo\e[0m   : Vincula esta instalación con el repositorio oficial para crear PRs."
+    echo -e " \e[36mdev-help\e[0m   : Muestra este menú."
+    echo -e "\e[35m================================================\e[0m"
+}
+
+# 2. Herramienta de Sincronización Automática (Dinámica)
+dev-sync() {
     clear
     echo -e "\e[33m🔄 INICIANDO SINCRONIZACIÓN AL REPOSITORIO...\e[0m"
     
-    # Usamos $HOME para que no importe en qué PC estés, siempre encuentre la ruta
-    REPO_DIR="$HOME/Documents/VS code/hyler-gitbash"
-    LIVE_DIR="$HOME/.dotfiles"
-
-    # Verificamos que la carpeta del repo exista
-    if [ ! -d "$REPO_DIR" ]; then
-        echo -e "\e[31m❌ Error: No se encontró el repositorio en:\e[0m"
-        echo -e "\e[90m$REPO_DIR\e[0m"
+    # Verificamos si la ruta está configurada
+    if [ -z "$HYLER_REPO_PATH" ] || [ ! -d "$HYLER_REPO_PATH" ]; then
+        echo -e "\e[31m❌ Error: No has configurado la ruta del repositorio.\e[0m"
+        echo -e "\e[90mEjecuta 'dev-repo' primero para vincular tu carpeta.\e[0m"
         return 1
     fi
 
-    echo -e "\e[90mCopiando archivos núcleo (Ignorando configuraciones personales)...\e[0m"
+    REPO_DIR="$HYLER_REPO_PATH"
+    LIVE_DIR="$HOME/.dotfiles"
 
-    # 1. Copiar Loaders (los puente)
+    echo -e "\e[90mCopiando archivos núcleo a: $REPO_DIR\e[0m"
+
+    # Copiar Loaders (¡Ahora sí atrapamos el bashrc!)
     cp "$HOME/.bashrc" "$REPO_DIR/.bashrc"
     cp "$HOME/.bash_profile" "$REPO_DIR/.bash_profile"
+    echo -e "\e[32m✔️  Actualizado:\e[0m .bashrc y .bash_profile"
 
-    # 2. Array con los archivos exactos del motor (AQUÍ NUNCA PONGAS user_config.sh NI notas_dev.txt)
-    archivos_motor=(
-        "aliases.sh" 
-        "dashboard.sh" 
-        "help.sh" 
-        "prompt.sh" 
-        "utils.sh" 
-        "dev.sh"
-    )
+
+    # LÓGICA DE COPIA DINÁMICA
+    echo -e "\n\e[90mEscaneando y copiando módulos del motor...\e[0m"
     
-    # 3. Bucle de copia segura
-    for archivo in "${archivos_motor[@]}"; do
-        if [ -f "$LIVE_DIR/$archivo" ]; then
-            # Las comillas protegen las rutas con espacios como 'VS code'
-            cp "$LIVE_DIR/$archivo" "$REPO_DIR/.dotfiles/$archivo"
-            echo -e "\e[32m✔️  Actualizado:\e[0m $archivo"
+    # Busca todos los archivos .sh en la carpeta
+    for archivo in "$LIVE_DIR"/*.sh; do
+        # Extrae solo el nombre del archivo (ej: dev.sh)
+        nombre_base=$(basename "$archivo")
+        
+        # Filtro de seguridad: EXCLUIR configuraciones personales
+        if [[ "$nombre_base" != "user_config.sh" && "$nombre_base" != "notas_dev.txt" ]]; then
+            cp "$archivo" "$REPO_DIR/.dotfiles/$nombre_base"
+            echo -e "\e[32m✔️  Actualizado:\e[0m $nombre_base"
         fi
     done
 
+    # Lógica de copia recursiva para directorios
+    echo -e "\n\e[90mCopiando directorios de recursos...\e[0m"
+    if [ -d "$LIVE_DIR/logos" ]; then
+        cp -R "$LIVE_DIR/logos" "$REPO_DIR/.dotfiles/"
+        echo -e "\e[32m✔️  Directorio sincronizado:\e[0m logos/"
+    fi
+
     echo -e "\n\e[32m✨ ¡Sincronización completada!\e[0m"
-    echo -e "\e[90mAhora podés ir a tu repo, hacer 'git add .' y pushear la nueva versión.\e[0m"
+    echo -e "\e[90mVe a tu carpeta del repo y ejecuta git status.\e[0m"
 }
 
-# 2. Herramienta de Auditoría
-auditar-entorno() {
+# 3. Herramienta para Colaboradores (El Vinculador)
+dev-repo() {
+    clear
+    echo -e "\e[35m========== 🔧 CONFIGURACIÓN DEL REPOSITORIO ==========\e[0m"
+    echo "Para poder sincronizar tus cambios, primero debes haber"
+    echo "clonado el repositorio oficial en alguna carpeta de tu PC."
+    echo ""
+    
+    # Pedimos la ruta
+    read -p "👉 Arrastra aquí la carpeta del repo clonado (o escribe la ruta): " RUTA_INPUT
+    
+    # Limpiamos las comillas que Windows suele agregar al arrastrar carpetas
+    RUTA_LIMPIA=$(echo "$RUTA_INPUT" | sed "s/'//g" | sed 's/"//g')
+
+    if [ -d "$RUTA_LIMPIA/.git" ]; then
+        # Si es un repo válido, lo guardamos en user_config.sh
+        local CONFIG_FILE="$HOME/.dotfiles/user_config.sh"
+        
+        # Borramos la ruta vieja si existe
+        sed -i '/HYLER_REPO_PATH=/d' "$CONFIG_FILE"
+        # Guardamos la nueva
+        echo "export HYLER_REPO_PATH=\"$RUTA_LIMPIA\"" >> "$CONFIG_FILE"
+        # La cargamos en memoria
+        export HYLER_REPO_PATH="$RUTA_LIMPIA"
+        
+        echo -e "\n\e[32m✨ ¡Repositorio vinculado exitosamente!\e[0m"
+        echo -e "\e[90mRuta guardada: $HYLER_REPO_PATH\e[0m"
+        echo -e "Ahora puedes usar \e[36mdev-sync\e[0m cuando quieras extraer tus cambios."
+    else
+        echo -e "\n\e[31m❌ Error: La ruta no parece ser un repositorio Git válido.\e[0m"
+        echo -e "\e[90mAsegúrate de apuntar a la carpeta raíz de hyler-gitbash.\e[0m"
+    fi
+}
+
+# 4. Herramienta de Auditoría
+dev-audit() {
     clear
     echo -e "\e[33mINICIANDO AUDITORÍA DE HYLER GITBASH...\e[0m"
     
@@ -60,7 +108,8 @@ auditar-entorno() {
         "dev" "gs" "ga" "gc" "gl" 
         "workspace" "mkcd" "killport" 
         "nota" "misnotas" 
-        "bashconfig" "br" "mi-config" "configurar-entorno" "mi-logo" "hyler-sync" "auditar-entorno"
+        "bashconfig" "br" "mi-config" "configurar-entorno" "mi-logo" 
+        "dev-sync" "dev-audit" "dev-repo" "dev-help"
     )
     
     fallos=0

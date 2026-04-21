@@ -31,7 +31,7 @@ mi-config() {
 }
 
 # ==========================================
-# ASISTENTE
+# ASISTENTE INTERACTIVO
 # ==========================================
 configurar-entorno() {
     clear
@@ -65,7 +65,7 @@ configurar-entorno() {
     echo ""
 
     # 4. Directorio de Proyectos
-    echo -e "\e[33m4. Directorio de Proyectos (Atajo 'api')\e[0m"
+    echo -e "\e[33m4. Directorio de Proyectos (Atajo 'workspace')\e[0m"
     echo -e "\e[90mUsa el punto '.' para elegir tu carpeta actual ($PWD).\e[0m"
     read -p "❯ Ruta (Actual: $LEARNING_PATH): " input_path
     if [ "$input_path" == "." ]; then
@@ -82,15 +82,15 @@ configurar-entorno() {
     echo -e "\e[90m- Escribe un punto '.' para guardarlo en la carpeta donde estás ahora.\e[0m"
     read -p "❯ Ruta (Actual: $NOTES_FILE): " input_notas
     
-    # Lógica inteligente para la ruta de notas
+        # Lógica inteligente para la ruta de notas
     if [ -z "$input_notas" ]; then
-        # Si presiona Enter, mantiene lo que ya tenía
+            # Si presiona Enter, mantiene lo que ya tenía
         input_notas="$NOTES_FILE"
     elif [ "$input_notas" == "." ]; then
-        # Si pone un punto, usa la carpeta actual y le agrega el nombre del archivo
+            # Si pone un punto, usa la carpeta actual y le agrega el nombre del archivo
         input_notas="$PWD/notas_dev.txt"
     else
-        # Si escribe una ruta pero se olvida de ponerle el .txt al final, se lo agregamos
+            # Si escribe una ruta pero se olvida de ponerle el .txt al final, se lo agregamos
         if [[ "$input_notas" != *".txt" ]]; then
             input_notas="${input_notas}/notas_dev.txt"
         fi
@@ -104,21 +104,25 @@ configurar-entorno() {
     fi
     echo ""
 
-    # 6. Guardar todo
     CONFIG_FILE="$HOME/.dotfiles/user_config.sh"
-    echo "# ==============================================================================" > "$CONFIG_FILE"
-    echo "# user_config.sh - Panel de Control (Generado por el Asistente)" >> "$CONFIG_FILE"
-    echo "# ==============================================================================" >> "$CONFIG_FILE"
-    echo "export USER_NAME=\"$input_name\"" >> "$CONFIG_FILE"
-    echo "export DASHBOARD_TITLE=\"$input_title\"" >> "$CONFIG_FILE"
-    echo "export WEATHER_CITY=\"$input_city\"" >> "$CONFIG_FILE"
-    echo "export LEARNING_PATH=\"$input_path\"" >> "$CONFIG_FILE"
-    echo "export NOTES_FILE=\"$input_notas\"" >> "$CONFIG_FILE"
+    
+    echo -e "\e[90mGuardando configuración...\e[0m"
+    
+    # sed busca la variable y reemplaza solo su valor
+    # Usamos '#' en vez de '/' como delimitador de sed porque las rutas (como C:/Users) ya tienen '/'
+    sed -i "s#^export USER_NAME=.*#export USER_NAME=\"$input_name\"#" "$CONFIG_FILE"
+    sed -i "s#^export DASHBOARD_TITLE=.*#export DASHBOARD_TITLE=\"$input_title\"#" "$CONFIG_FILE"
+    sed -i "s#^export WEATHER_CITY=.*#export WEATHER_CITY=\"$input_city\"#" "$CONFIG_FILE"
+    sed -i "s#^export LEARNING_PATH=.*#export LEARNING_PATH=\"$input_path\"#" "$CONFIG_FILE"
+    sed -i "s#^export NOTES_FILE=.*#export NOTES_FILE=\"$input_notas\"#" "$CONFIG_FILE"
 
-    echo -e "\e[32m✔️ ¡Configuración guardada con éxito!\e[0m"
+    echo -e "\e[32m✨ ¡Configuración actualizada con éxito!\e[0m"
     sleep 1
+    
+    # Recargamos el entorno para aplicar los cambios
     source ~/.bashrc
 }
+
 # ==========================================
 # Editor de Logo ASCII
 # ==========================================
@@ -252,4 +256,3 @@ killport() {
         fi
     fi
 }
-
